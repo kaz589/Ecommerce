@@ -7,7 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
+@Service
 public class UsersImp implements UsersService {
 
     public final UsersRepository usersRepository;
@@ -16,7 +18,7 @@ public class UsersImp implements UsersService {
 
     @Override
     public Page<UsersEntity> getAllUsers(int page, int size) {
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("playerId").ascending());
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("UserId").ascending());
 
         return usersRepository.findAll(pageable);
 
