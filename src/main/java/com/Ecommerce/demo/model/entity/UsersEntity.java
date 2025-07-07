@@ -2,7 +2,7 @@ package com.Ecommerce.demo.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
+
 
 import java.time.LocalDateTime;
 
@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "Users")
 public class UsersEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "UserId")
