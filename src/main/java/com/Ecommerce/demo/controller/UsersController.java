@@ -10,9 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/users")
-
 public class UsersController {
-    private UsersService usersService;
+    private final UsersService usersService;
 
 
     public UsersController(UsersService usersService) {
@@ -25,9 +24,6 @@ public class UsersController {
     )
     @GetMapping("/All")
     public Page<UsersEntity> findAllUsers(){
-        Page<UsersEntity> aas = usersService.getAllUsers(0,10);
-
-        System.out.println(usersService.getAllUsers(0, 10).getContent());
         return  usersService.getAllUsers(0,10);
     }
 }
