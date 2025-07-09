@@ -4,11 +4,12 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
-
+@Component
 public class JwtTokenProvider {
     private final String JWT_SECRET = "your_very_long_secret_key_that_is_at_least_256_bits_and_can_be_extended_to_512_bits_for_stronger_security_use_in_production_environment";  // 确保这个密钥安全且满足512位
 
