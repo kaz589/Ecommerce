@@ -14,9 +14,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/api")
 public class AuthController {
 
     @Autowired
@@ -40,12 +42,15 @@ public class AuthController {
                     )
             );
 
+            // 登入成功，取得用戶名
+            String username = authentication.getName(); // 獲取用戶名
             // 登入成功，生成 JWT Token
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtTokenProvider.generateToken(authentication.getName(), authentication.getAuthorities().toString());
 
+
             //回傳
-            return ResponseEntity.ok(new JwtResponse(jwt));
+            return ResponseEntity.ok(new JwtResponse(jwt,username));
         }
         catch (BadCredentialsException e) {
             // 捕獲錯誤並回傳具體訊息

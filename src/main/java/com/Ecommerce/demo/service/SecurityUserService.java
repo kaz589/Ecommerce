@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class SecurityUserService implements UserDetailsService{
+public class SecurityUserService implements UserDetailsService {
     private final UsersRepository usersRepository;
 
     public SecurityUserService(UsersRepository usersRepository) {
@@ -23,12 +23,11 @@ public class SecurityUserService implements UserDetailsService{
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
 
-
         // 先試著當 username 查
         Optional<UsersEntity> users = usersRepository.findByUsername(username);
         //再用Email查
         if (users.isEmpty()) {
-//            throw new UsernameNotFoundException("使用者不存在: " + username);
+            //throw new UsernameNotFoundException("使用者不存在: " + username);
             users = usersRepository.findByEmail(username);
         }
 

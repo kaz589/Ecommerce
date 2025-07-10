@@ -29,21 +29,38 @@ public class SecurityConfig {
     public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
     }
+
+    /**
+     * 配置 Spring Security 的核心安全邏輯，包括 CORS、CSRF、授權規則及自定義的過濾器
+     *
+     * @param http HttpSecurity 對象，用於設置安全性配置
+     * @return SecurityFilterChain 安全過濾鏈
+     * @throws Exception 配置可能拋出的異常
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // 配置 CORS（跨來源請求）規則，使用自定義的 corsConfigurationSource 方法
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // 使用自定義的 CORS 配置
-                .csrf(csrf -> csrf.disable()) // 使用新的配置方式禁用 CSRF
+                // 禁用 CSRF（跨站請求偽造）保護，通常在 REST API 中禁用
+                .csrf(csrf -> csrf.disable())
+                // 設置授權規則
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login","/swagger-ui/**").permitAll() // 允許登入路徑
-                        .anyRequest().authenticated() // 封鎖其他所有請求
-                       // .requestMatchers("/login","/swagger-ui/**","/api/users/**").permitAll() // 允許登入路徑
+                                // 允許匿名訪問的路徑，例如登入 API 和 Swagger UI
+                                .requestMatchers("/api/login", "/swagger-ui/**").permitAll() // 允許登入路徑
+                                // 其他所有請求均需要授權
+                                .anyRequest().authenticated() // 其他請求需要登入
+                        // .requestMatchers("/login","/swagger-ui/**","/api/users/**").permitAll() // 允許登入路徑
 
                 )
+                // 在 UsernamePasswordAuthenticationFilter 之前添加自定義的 JWT 驗證過濾器
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-
+    /**
+     * 配置 CORS（跨來源請求）的規則，允許特定來源和方法
+     * @return CorsConfigurationSource CORS 配置源
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -51,31 +68,48 @@ public class SecurityConfig {
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true); // 如果你前端有帶 cookie 或 auth header 的話
-
+        // 設置 CORS 配置的作用範圍（所有路徑）
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
 
         return source;
     }
+    // 注入自定義的 SecurityUserService，用於處理使用者認證邏輯
     @Autowired
     private SecurityUserService securityUserService;
-    //使用 AuthenticationManager 驗證 email + password
+
+    /**
+     * 配置 AuthenticationManager，用於管理認證提供者
+     * @param http HttpSecurity 對象
+     * @param authConfig AuthenticationConfiguration 用於獲取預設的認證配置
+     * @return AuthenticationManager 認證管理器
+     * @throws Exception 配置可能拋出的異常
+     */
     @Bean
     public AuthenticationManager authManager(HttpSecurity http, AuthenticationConfiguration authConfig) throws Exception {
+        // 使用 ProviderManager 管理 DaoAuthenticationProvider
         return new ProviderManager(List.of(daoAuthenticationProvider()));
     }
 
-    //用來產出 Spring Security 預設的密碼驗證器： (daoAuthenticationProvider()	驗證「帳號 + 密碼」的邏輯封裝器)
+    /**
+     * 配置 DaoAuthenticationProvider，用於處理帳號密碼的認證邏輯
+     * @return DaoAuthenticationProvider 帳號密碼認證提供者
+     */
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider authenticationProvider
                 = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(securityUserService); 		// 你自己的 UserDetailsService
-        authenticationProvider.setPasswordEncoder(new BCryptPasswordEncoder());		// 通常是 BCryptPasswordEncoder
+        // 設置自定義的 UserDetailsService（從資料庫加載使用者資料）
+        authenticationProvider.setUserDetailsService(securityUserService);
+        // 設置密碼加密器（使用 BCryptPasswordEncoder）
+        authenticationProvider.setPasswordEncoder(new BCryptPasswordEncoder());
         return authenticationProvider;
     }
 
-    //加密
+    /**
+     * 配置密碼加密器，用於加密和驗證密碼
+     * @return PasswordEncoder 密碼加密器
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

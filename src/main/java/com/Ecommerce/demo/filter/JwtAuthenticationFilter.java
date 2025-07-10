@@ -27,7 +27,7 @@ public class JwtAuthenticationFilter   extends OncePerRequestFilter {
         String path = request.getRequestURI();
 
         // ⛔ 不做 JWT 驗證的路徑（可再加其他路徑）
-        if (path.startsWith("/api/public") || path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
+        if (path.startsWith("/api/login") || path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
             filterChain.doFilter(request, response); // 直接放行
             return;
         }
