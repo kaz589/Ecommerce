@@ -59,6 +59,7 @@ const authStore = useAuthStore();
 const navLinks = ref([
   { name: "首頁", href: "/" },
   { name: "查看用戶", href: "/users" },
+  { name: "查看產品", href: "/products" },
 ]);
 
 // 判斷當前路由是否為高亮狀態

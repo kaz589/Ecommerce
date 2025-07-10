@@ -31,6 +31,7 @@ const fetchUsers = async () => {
     const response = await ApiUsers.findAllUsers(); // 使用 ApiAirport 方法
     users.value = response.data.content; // 假設 API 返回的數據格式包含 content 屬性
   } catch (error) {
+    alert("Error fetching users: " + error.message);
     console.error("Error fetching users:", error);
   }
 };

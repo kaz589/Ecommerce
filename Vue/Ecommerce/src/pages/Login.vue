@@ -72,6 +72,7 @@ const handleLogin = async () => {
     console.log("登入成功:", response.data);
     const token= response.data.token;
     const authStore = useAuthStore();
+    
    authStore.login(token);
     
     errorMessage.value = "";

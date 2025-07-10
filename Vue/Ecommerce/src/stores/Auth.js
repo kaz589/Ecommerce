@@ -19,6 +19,7 @@ export const useAuthStore = defineStore(
           if (!payload || !payload.sub) {
             throw new Error("無效的 Token，無法提取用戶信息");
           }
+console.log("payload", payload);
 
           this.user = payload.sub; // 確保 `sub` 存在
           this.token = token;
