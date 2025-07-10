@@ -1,5 +1,6 @@
 package com.Ecommerce.demo.controller;
 
+import com.Ecommerce.demo.exception.InvalidTokenException;
 import com.Ecommerce.demo.model.entity.UsersEntity;
 import com.Ecommerce.demo.service.UsersService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +25,7 @@ public class UsersController {
     )
     @GetMapping("/All")
     public Page<UsersEntity> findAllUsers(){
+
         return  usersService.getAllUsers(0,10);
     }
 }

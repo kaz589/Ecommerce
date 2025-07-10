@@ -6,11 +6,13 @@ import com.Ecommerce.demo.utils.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -23,11 +25,12 @@ import java.util.List;
 
 @Configuration
 public class SecurityConfig {
-    @Autowired
-    private final JwtTokenProvider jwtTokenProvider;
 
-    public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
-        this.jwtTokenProvider = jwtTokenProvider;
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     /**
@@ -47,18 +50,20 @@ public class SecurityConfig {
                 // 設置授權規則
                 .authorizeHttpRequests(auth -> auth
                                 // 允許匿名訪問的路徑，例如登入 API 和 Swagger UI
-                                .requestMatchers("/api/login", "/swagger-ui/**").permitAll() // 允許登入路徑
+                                .requestMatchers("/api/login/**", "/swagger-ui/**").permitAll() // 允許登入路徑
                                 // 其他所有請求均需要授權
                                 .anyRequest().authenticated() // 其他請求需要登入
                         // .requestMatchers("/login","/swagger-ui/**","/api/users/**").permitAll() // 允許登入路徑
 
                 )
                 // 在 UsernamePasswordAuthenticationFilter 之前添加自定義的 JWT 驗證過濾器
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
     /**
      * 配置 CORS（跨來源請求）的規則，允許特定來源和方法
+     *
      * @return CorsConfigurationSource CORS 配置源
      */
     @Bean
@@ -74,13 +79,15 @@ public class SecurityConfig {
 
         return source;
     }
+
     // 注入自定義的 SecurityUserService，用於處理使用者認證邏輯
     @Autowired
     private SecurityUserService securityUserService;
 
     /**
      * 配置 AuthenticationManager，用於管理認證提供者
-     * @param http HttpSecurity 對象
+     *
+     * @param http       HttpSecurity 對象
      * @param authConfig AuthenticationConfiguration 用於獲取預設的認證配置
      * @return AuthenticationManager 認證管理器
      * @throws Exception 配置可能拋出的異常
@@ -93,6 +100,7 @@ public class SecurityConfig {
 
     /**
      * 配置 DaoAuthenticationProvider，用於處理帳號密碼的認證邏輯
+     *
      * @return DaoAuthenticationProvider 帳號密碼認證提供者
      */
     @Bean
@@ -108,12 +116,14 @@ public class SecurityConfig {
 
     /**
      * 配置密碼加密器，用於加密和驗證密碼
+     *
      * @return PasswordEncoder 密碼加密器
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 
 }
 

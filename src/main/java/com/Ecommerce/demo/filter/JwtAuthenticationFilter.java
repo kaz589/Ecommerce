@@ -10,11 +10,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
-
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -28,11 +29,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = resolveToken(request);
 
         if (token == null) {
-            throw new MissingTokenException("Missing token");
+            filterChain.doFilter(request, response);
+            return; // 確保不執行後續代碼
         }
 
         if (!jwtTokenProvider.validateToken(token)) {
-            throw new InvalidTokenException("Invalid or expired token");
+            //SecurityContextHolder.clearContext();
+            //throw new InvalidTokenException("無效或過期token");
         }
 
         String username = jwtTokenProvider.getUsernameFromToken(token);
