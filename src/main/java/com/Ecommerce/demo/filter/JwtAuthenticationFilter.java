@@ -1,5 +1,7 @@
 package com.Ecommerce.demo.filter;
 
+import com.Ecommerce.demo.exception.InvalidTokenException;
+import com.Ecommerce.demo.exception.MissingTokenException;
 import com.Ecommerce.demo.utils.JwtTokenProvider;
 import com.Ecommerce.demo.utils.ResponseUtils;
 import jakarta.servlet.FilterChain;
@@ -13,7 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
-public class JwtAuthenticationFilter   extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
     public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider) {
@@ -21,42 +23,22 @@ public class JwtAuthenticationFilter   extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-
-        String path = request.getRequestURI();
-
-        // ⛔ 不做 JWT 驗證的路徑（可再加其他路徑）
-        if (path.startsWith("/api/login") || path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
-            filterChain.doFilter(request, response); // 直接放行
-            return;
-        }
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String token = resolveToken(request);
 
-        try {
-            if (token == null) {
-                ResponseUtils.sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Missing token");
-                return;
-            }
-
-            if (jwtTokenProvider.validateToken(token)) {
-                String username = jwtTokenProvider.getUsernameFromToken(token);
-                SecurityContextHolder.getContext().setAuthentication(
-                        new UsernamePasswordAuthenticationToken(username, null, List.of())
-                );
-            } else {
-                ResponseUtils.sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
-                return;
-            }
-
-            filterChain.doFilter(request, response);
-
-        } catch (RuntimeException e) {
-            ResponseUtils.sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized - " + e.getMessage());
-        } catch (Exception e) {
-            ResponseUtils.sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error - " + e.getMessage());
+        if (token == null) {
+            throw new MissingTokenException("Missing token");
         }
+
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new InvalidTokenException("Invalid or expired token");
+        }
+
+        String username = jwtTokenProvider.getUsernameFromToken(token);
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(username, null, List.of()));
+
+        filterChain.doFilter(request, response);
     }
 
 
