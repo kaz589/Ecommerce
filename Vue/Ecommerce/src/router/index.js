@@ -6,8 +6,25 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: UsersDisplay,
+      
+      component: () => import("@/pages/layout/Home.vue"),
+      children: [
+        {
+          path: "",
+          name: "home", // 將名稱移到子路由
+          component: () => import("@/pages/showroles.vue"),
+        },
+        {
+          path: 'users',
+          name: 'users',
+          component: ()=> import("@/pages/UsersDisplay.vue"),
+        }
+      ]
+    },
+     {
+      path: '/login',
+      name: 'login',
+      component: () => import("@/pages/Login.vue")
     },
    
   ],

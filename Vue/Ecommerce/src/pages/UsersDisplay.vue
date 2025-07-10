@@ -22,13 +22,13 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { ApiAirport } from "@/api/ApiUsers"; // 引入 API 模組
+import { ApiUsers } from "@/api/ApiUsers"; // 引入 API 模組
 
 const users = ref([]);
 
 const fetchUsers = async () => {
   try {
-    const response = await ApiAirport.findAllUsers(); // 使用 ApiAirport 方法
+    const response = await ApiUsers.findAllUsers(); // 使用 ApiAirport 方法
     users.value = response.data.content; // 假設 API 返回的數據格式包含 content 屬性
   } catch (error) {
     console.error("Error fetching users:", error);
