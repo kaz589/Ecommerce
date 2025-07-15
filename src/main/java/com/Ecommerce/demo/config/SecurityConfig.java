@@ -50,7 +50,7 @@ public class SecurityConfig {
                 // 設置授權規則
                 .authorizeHttpRequests(auth -> auth
                                 // 允許匿名訪問的路徑，例如登入 API 和 Swagger UI
-                                .requestMatchers("/api/login/**", "/swagger-ui/**").permitAll() // 允許登入路徑
+                                .requestMatchers("/api/auth/**", "/swagger-ui/**").permitAll() // 允許登入路徑
                                 // 其他所有請求均需要授權
                                 .anyRequest().authenticated() // 其他請求需要登入
                         // .requestMatchers("/login","/swagger-ui/**","/api/users/**").permitAll() // 允許登入路徑

@@ -5,7 +5,7 @@
       <div class="container-fluid">
         <!-- Logo -->
         <router-link class="navbar-brand" to="/">MyWebsite</router-link>
-        
+       
         <!-- 漢堡菜單按鈕 -->
         <button
           class="navbar-toggler"
@@ -33,6 +33,8 @@
             </li>
           </ul>
 
+           <h3 style="color: aliceblue;">用戶:{{ username  }}</h3>
+           <br>
           <!-- 右上角登出按鈕 -->
           <button
             class="btn btn-outline-light"
@@ -50,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router"; // 引入 useRouter
 import { useAuthStore } from "@/stores/Auth";
 const authStore = useAuthStore();
@@ -65,12 +67,21 @@ const navLinks = ref([
 // 判斷當前路由是否為高亮狀態
 const router  = useRouter();
 const isActive = (href) => router .path === href;
-
+const username = ref(""); 
+// 在組件掛載時獲取用戶名
+const fetchUsername = () => {
+  
+  
+  username.value = authStore.user;
+};
 // 登出功能
 const logout = () => {
   authStore.logout();
   router.push("/login"); 
 };
+onMounted(() => {
+  fetchUsername();
+});
 </script>
 
 <style scoped>

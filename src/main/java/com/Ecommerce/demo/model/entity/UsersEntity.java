@@ -34,4 +34,7 @@ public class UsersEntity {
 
     @Column(name = "UpdatedAt")
     private LocalDateTime updatedAt;
+
+    @Column(name = "balance")
+    private Integer balance;
 }

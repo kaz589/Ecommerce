@@ -9,5 +9,9 @@ export const ApiAuth = {
    * @param {string} data.password - 使用者密碼
    * @returns {Promise} - 回傳 API 回應的 Promise
    */
-  login: (data) => instance.post("/login", data),
+  login: (data) => instance.post("/auth/login", data, {
+      headers: {
+        "Content-Type": "application/json", // 確保請求頭正確
+      },
+    }),
 }

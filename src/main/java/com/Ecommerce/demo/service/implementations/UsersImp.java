@@ -36,4 +36,16 @@ public class UsersImp implements UsersService {
 
 
     }
+
+    @Override
+    public UsersEntity getUserByUserId(int UserId) {
+        return usersRepository.findByUserId(UserId)
+                .orElse(new UsersEntity());
+    }
+
+    @Override
+    public UsersEntity getUserByUserName(String UserName) {
+        return usersRepository.findByUsername(UserName)
+                .orElse(new UsersEntity());
+    }
 }
