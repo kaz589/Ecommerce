@@ -31,12 +31,13 @@ public class LoginLogAspect {
     }
     @After("LoginLogAspect()")
     public void logLoginDetails(JoinPoint joinPoint) {
+
         //test
         // 獲取用戶名
         String username = getAuthenticatedUsername();
         // 登入時間
         LocalDateTime loginTime = LocalDateTime.now();
-
+        //test2
         //  IP 地址
         String ipAddress = request.getRemoteAddr();
 
