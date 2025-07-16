@@ -20,7 +20,7 @@ public class CrudOperationLogAspect {
     public void crudOperationPointcut() {}
 
     // 定義 Before 切面，記錄方法執行前的操作
-    @Before("crudOperationPointcut() && (execution(* Create*(..)) || execution(* update*(..)) || execution(* delete*(..))))")
+    @Before("crudOperationPointcut() && (execution(* create*(..)) || execution(* update*(..)) || execution(* delete*(..))))")
     public void logBeforeCrudOperation(JoinPoint joinPoint) {
         // 獲取當前用戶
         String username = getAuthenticatedUsername();
@@ -36,7 +36,7 @@ public class CrudOperationLogAspect {
     }
 
     // 定義 AfterReturning 切面，記錄方法執行後的返回結果
-    @AfterReturning(pointcut = "crudOperationPointcut() && (execution(* Create*(..)) || execution(* update*(..)) || execution(* delete*(..)) )", returning = "result")
+    @AfterReturning(pointcut = "crudOperationPointcut() && (execution(* create*(..)) || execution(* update*(..)) || execution(* delete*(..)) )", returning = "result")
     public void logAfterCrudOperation(JoinPoint joinPoint, Object result) {
         // 獲取當前用戶
         String username = getAuthenticatedUsername();

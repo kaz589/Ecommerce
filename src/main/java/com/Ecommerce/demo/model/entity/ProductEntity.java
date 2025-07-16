@@ -1,11 +1,13 @@
 package com.Ecommerce.demo.model.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
+
 @Entity
 @Table(name = "Product")
 public class ProductEntity {

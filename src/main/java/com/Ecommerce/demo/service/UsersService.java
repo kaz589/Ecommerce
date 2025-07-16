@@ -7,4 +7,6 @@ public interface UsersService {
     Page<UsersEntity> getAllUsers(int page, int size);
     UsersEntity getUserByUserId(int UserId);
     UsersEntity getUserByUserName(String UserName);
+    UsersEntity validateAndFetchUser (String username, int totalPrice);
+    void updateUsers(UsersEntity users);
 }

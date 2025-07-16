@@ -35,9 +35,9 @@ public class ProductController {
 
     //@PreAuthorize("hasRole('ROLE_Admin')")
     @PostMapping("/create")
-    public ResponseEntity<ProductEntity> CreateProduct(@RequestBody ProductEntity product) {
+    public ResponseEntity<ProductEntity> createProduct(@RequestBody ProductEntity product) {
 
-        ProductEntity newproduct = productService.CreateProduct(product);
+        ProductEntity newproduct = productService.createProduct(product);
 
 
         return new ResponseEntity<>(newproduct, HttpStatus.OK);
