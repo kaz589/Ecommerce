@@ -1,5 +1,6 @@
 package com.Ecommerce.demo.service.implementations;
 
+import com.Ecommerce.demo.exception.BusinessException;
 import com.Ecommerce.demo.model.entity.UsersEntity;
 import com.Ecommerce.demo.repository.UsersRepository;
 import com.Ecommerce.demo.service.UsersService;
@@ -47,5 +48,23 @@ public class UsersImp implements UsersService {
     public UsersEntity getUserByUserName(String UserName) {
         return usersRepository.findByUsername(UserName)
                 .orElse(new UsersEntity());
+    }
+
+    @Override
+    public UsersEntity validateAndFetchUser(String username, int totalPrice) {
+        UsersEntity user = usersRepository.findByUsername(username)
+                .orElseThrow(() -> new BusinessException("用戶不存在"));
+
+        if (user.getBalance() < totalPrice) {
+            throw new BusinessException("用戶餘額不足");
+        }
+
+        return user;
+    }
+
+    @Override
+    public void updateUsers( UsersEntity users) {
+        usersRepository.save(users);
+
     }
 }

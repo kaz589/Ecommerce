@@ -1,5 +1,6 @@
 package com.Ecommerce.demo.service.implementations;
 
+import com.Ecommerce.demo.exception.BusinessException;
 import com.Ecommerce.demo.repository.CategoryRepository;
 import com.Ecommerce.demo.service.CategoryService;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,8 @@ public class CategoryImp  implements CategoryService {
 
     @Override
     public List<String> findDistinctCategory() {
+
+
         return categoryRepository.findDistinctBynameNotNull();
     }
 }
