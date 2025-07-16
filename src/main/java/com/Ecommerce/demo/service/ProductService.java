@@ -11,5 +11,7 @@ public interface  ProductService {
     Optional<ProductEntity> findProductById(Integer id);
     Page<ProductEntity> findAllProduct(int page, int size);
     void purchase(String Username ,int productId,int quantity );
-    ProductEntity CreateProduct(ProductEntity product);
+    ProductEntity createProduct(ProductEntity product);
+    ProductEntity validateAndFetchProduct(int productId, int quantity);
+    ProductEntity updateProduct(ProductEntity product);
 }

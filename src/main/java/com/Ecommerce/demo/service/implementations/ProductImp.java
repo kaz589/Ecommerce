@@ -7,6 +7,7 @@ import com.Ecommerce.demo.repository.ProductRepository;
 import com.Ecommerce.demo.repository.UsersRepository;
 import com.Ecommerce.demo.service.ProductService;
 
+import com.Ecommerce.demo.service.UsersService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,68 +15,98 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.beans.Transient;
+
 import java.util.Optional;
 
 @Service
 public class ProductImp implements ProductService {
 
     private final ProductRepository productRepository;
-    private final UsersRepository usersRepository;
 
-    public ProductImp(ProductRepository productRepository,UsersRepository usersRepository) {
+    private final UsersService usersService;
+
+    public ProductImp(ProductRepository productRepository, UsersService usersService) {
         this.productRepository = productRepository;
-        this.usersRepository=usersRepository;
+
+        this.usersService = usersService;
     }
+
+
 
 
     @Override
     public Optional<ProductEntity> findProductById(Integer id) {
-        return Optional.empty();
+
+        Optional<ProductEntity> product = productRepository.findById(id);
+        if (product.isEmpty()) {
+            throw new BusinessException("商品不存在");
+        }
+        return product;
+
+
     }
 
     @Override
     public Page<ProductEntity> findAllProduct(int page, int size) {
-        Pageable pageable = PageRequest.of(0, 100, Sort.by("productId").ascending());
+        // 建立分頁請求
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("productId").ascending());
 
-        return productRepository.findAll(pageable);
+        // 獲取分頁結果
+        Page<ProductEntity> products = productRepository.findAll(pageable);
+
+        // 檢查是否有產品
+        if (products.hasContent()) {
+            return products;
+        } else {
+            throw new BusinessException("查無商品");
+        }
     }
 
     @Override
     @Transactional
-    public void purchase(String Username, int productId, int quantity) {
+    public void purchase(String username, int productId, int quantity) {
+        // 1. 確認商品是否存在並檢查庫存
+        ProductEntity product = validateAndFetchProduct(productId, quantity);
+
+        // 2. 確認用戶是否存在並檢查餘額
+        UsersEntity user = usersService.validateAndFetchUser(username, product.getPrice() * quantity);
+
+        // 3. 更新商品庫存
+        product.setStockQuantity(product.getStockQuantity() - quantity);
+        updateProduct(product);
+
+
+        // 4. 更新用戶餘額
+        int amount= (product.getPrice() * quantity);
+        user.setBalance(user.getBalance() - amount);
+        usersService.updateUsers(user);
+    }
+    @Override
+    public ProductEntity validateAndFetchProduct(int productId, int quantity) {
 
 
 
-        // 確認商品是否存在
+        ProductEntity product = findProductById(productId)
+                .orElseThrow(() -> new BusinessException("商品不存在"));
 
-
-        ProductEntity product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("商品不存在"));
-        int nowStockQuantity = product.getStockQuantity();
-
-        if (nowStockQuantity < quantity) {
-            throw new RuntimeException("商品庫存不足");
+        if (product.getStockQuantity() < quantity) {
+            throw new BusinessException("商品庫存不足");
         }
-        product.setStockQuantity(nowStockQuantity - quantity);
-        productRepository.save(product);
 
-        //TODO:再檢查用戶跟餘額
-        // 2. 扣除用戶餘額
-        UsersEntity user = usersRepository.findByUsername(Username)
-                .orElseThrow(() -> new BusinessException("用戶不存在"));
-
-        int totalPrice = product.getPrice() * quantity;
-        if (user.getBalance() < totalPrice) {
-            throw new BusinessException("用戶餘額不足");
-        }
-
-        user.setBalance(user.getBalance()-totalPrice);
-        usersRepository.save(user);
+        return product;
     }
 
     @Override
-    public ProductEntity CreateProduct(ProductEntity product) {
+    public ProductEntity updateProduct(ProductEntity product) {
+        return productRepository.save(product);
+    }
+
+
+
+
+
+    @Override
+    public ProductEntity createProduct(ProductEntity product) {
         return productRepository.save(product);
     }
 }
